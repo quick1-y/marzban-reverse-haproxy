@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+GREEN="\033[32m"
+RED="\033[31m"
+YELLOW="\033[33m"
+CYAN="\033[36m"
+RESET="\033[0m"
+
+trap 'log ERROR "Скрипт завершился с ошибкой на строке ${LINENO}."; exit 1' ERR
+
 APP_DIR="/opt/marzban-reverse-proxy"
 CONFIG_DIR="$APP_DIR/config"
 SCRIPTS_DIR="$APP_DIR/scripts"
@@ -14,7 +22,24 @@ DEFAULT_TEMPLATE_NAMES=("classic" "material" "terminal" "landing")
 
 log() {
   local level="$1"; shift
-  printf '[%(%Y-%m-%d %H:%M:%S)T] [%s] %s\n' -1 "$level" "$*"
+  local color="$CYAN"
+
+  case "$level" in
+    INFO)
+      color="$CYAN"
+      ;;
+    WARN)
+      color="$YELLOW"
+      ;;
+    ERROR)
+      color="$RED"
+      ;;
+    SUCCESS)
+      color="$GREEN"
+      ;;
+  esac
+
+  printf '%b[%(%Y-%m-%d %H:%M:%S)T] [%s] %s%b\n' "$color" -1 "$level" "$*" "$RESET"
 }
 
 escape_sed() {
